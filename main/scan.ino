@@ -4,10 +4,11 @@ TEMP_LEVEL_1,                 // 0 for 0-9
 TEMP_LEVEL_2,                 // 1 for 19-47 
 TEMP_LEVEL_3,                 // 2 for 48-54
 TEMP_LEVEL_4,                 // 3 for 45-47
+TEMP_LEVEL_5                  // Reset
 };
 
 float getTemp() {
-    Serial.println("Getting Temp data...");
+//    Serial.println("Getting Temp data...");
     byte byte_buffer[2];
     uint32_t myInt;
    
@@ -26,7 +27,7 @@ float getTemp() {
 
      myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system
      
-     Serial.println("Collected Temp data...");
+//     Serial.println("Collected Temp data...");
      return ((float)myInt/10)-273;
 }
 
@@ -188,19 +189,19 @@ int getDesignCapacity() {
 
 void setLevel() {
 
-    if(battery.temp_level<=9) {
+    if((battery.temp<=9)) {
        battery.temp_level =  TEMP_LEVEL_1;   
 
-    } else if((battery.temp_level) && (battery.temp_level)) {
+    } else if((battery.temp>9) && (battery.temp<=47)) {
        battery.temp_level =  TEMP_LEVEL_2;
 
-    } else if((battery.temp_level) && (battery.temp_level)) { 
+    } else if((battery.temp>47) && (battery.temp<=54)) { 
        battery.temp_level =  TEMP_LEVEL_3;
 
-    } else if((battery.temp_level)) {                    
+    } else if((battery.temp>55)) {                    
        battery.temp_level =  TEMP_LEVEL_4;
     }
-Serial.println("Level set as per Temp...");    
+//Serial.println("Level set as per Temp...");    
 }
 
 void setCharger() {
@@ -259,7 +260,7 @@ void setCharger() {
          digitalWrite(I1_6a, LOW);  
 
                       break;
-         default:
+         case TEMP_LEVEL_5:
              resetCharger();  
              break;        
 
@@ -267,24 +268,29 @@ void setCharger() {
 //        digitalWrite(heartbeat_LED,HIGH);  
 }
 
-void scan() {
-                Serial.print(F("Scaning start.."));
+void resetSavedValues() {
+  battery.temp = 0;
+  battery.temp_level=0;
+}
 
-                digitalWrite(heartbeat_LED,LOW);  
+void scan() {
+                screen.clearDisplay();
+                bat_connected = false;
+                resetSavedValues(); 
 
                 Wire.beginTransmission(BAT_ADDRESS);
                 byte response = Wire.endTransmission();
                 Serial.println(response);
-                delay(10);
+                
                 if(response==0) {
 
                        bat_connected = true;    // set boolean batteries connected
                         Serial.println(F("Bat connected.."));
                   // Get all connected battery data                                     
 
-                        //  battery.temp = getTemp();  // Temparature
+                          battery.temp = getTemp();  // Temparature
                           
-                        //  setLevel();  // set battery Level as per temparature
+                          setLevel();  // set battery Level as per temparature
                            
                           // battery.voltage = getVolt();  // Voltage
                         

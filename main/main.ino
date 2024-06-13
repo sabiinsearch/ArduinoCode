@@ -99,6 +99,8 @@ struct battery_t{
 // init variables
 bool bat_connected;
 battery_t battery;
+uint8_t bat_temp;
+uint8_t temp_level;
 
 int heartbeat_LED = HEARBEAT_LED;
 
@@ -124,8 +126,7 @@ void setup() {
   // Wire.setClock(400000);
   initBoard();
   bat_connected = false;
-//  screen.begin(DISPLAY_ADDRESS,true);
-  Wire.beginTransmission(BAT_ADDRESS);
+  screen.begin(DISPLAY_ADDRESS,true);
   
 }
 
@@ -141,23 +142,25 @@ void loop() {
 
         }      
         else {
-
-                 Serial.println(F("printing Bat info"));
+                 
                  printBatInfo();
                  setCharger();
-//                 displayOnScreen();
+                 displayOnScreen();
                        
 //            delay(100);
 
 //           Serial.println(F("Exiting main loop"));
-           for(uint8_t i=0;i<100;i++) {
-              digitalWrite(heartbeat_LED,HIGH);
-               delay(100);
-              digitalWrite(heartbeat_LED,HIGH);
-               delay(100);
-            } 
-        }
 
+            } 
+           
+        
+           for(uint8_t i=0;i<50;i++) {
+              digitalWrite(heartbeat_LED,LOW);
+               delay(100);
+              digitalWrite(heartbeat_LED,HIGH);
+               delay(100);
+           }
    
+   //delay(5000);
 
 }

@@ -1,6 +1,6 @@
 
 void displayOnScreen() {
-/*
+
 //  Serial.println(F("Display.."));
 //  digitalWrite(heartbeat_LED,LOW); 
 
@@ -43,7 +43,7 @@ void displayOnScreen() {
            screen.setCursor(x+1,y+10);
            screen.print("L");
            screen.setCursor(x+10,y+10);
-           screen.print(battery.temp_level+1);
+           screen.print(battery.temp_level);
            
            // appMgr->displayMgr->screen->print(F("Bat@"));
            //appMgr->displayMgr->screen->print(i+1);
@@ -64,7 +64,7 @@ void displayOnScreen() {
    delay(2);
 
 //   digitalWrite(heartbeat_LED,HIGH);
-*/  
+ 
 }
 
 void printBatInfo() {
@@ -77,8 +77,8 @@ void printBatInfo() {
            Serial.print(F("  T: "));
            Serial.println(battery.temp);
 
-//           Serial.print(F("  L: "));
-//           Serial.println(appMgr->temp_level[j]+1);
+           Serial.print(F("  L: "));
+           Serial.println(battery.temp_level);
 
           // Serial.print(F("  Capacity: "));
           // Serial.print(appMgr->design_capacity[i]);
