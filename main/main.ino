@@ -5,6 +5,10 @@
 // I2C address
 #define BAT_ADDRESS              0x0B
 #define DISPLAY_ADDRESS          0x3C
+// constants for display
+#define SCREEN_WIDTH            128 // OLED display width, in pixels
+#define SCREEN_HEIGHT           64 // OLED display height, in pixels
+#define OLED_RESET              4    //   QT-PY / XIAO
 
 // Standard and common non-standard Smart Battery commands
 #define BATTERY_MODE             0x03
@@ -60,25 +64,19 @@
 // other variables
 
 #define HEARBEAT_LED      7
+
 #define VOLT_PIN_1        9
 #define VOLT_PIN_2        10
 #define VOLT_PIN_3        11
-#define VOLT_PIN_4        3
-#define VOLT_PIN_5        4
-#define VOLT_PIN_6        5
-
 
 #define CURRENT_PIN_1        6
 #define CURRENT_PIN_2        A1
 #define CURRENT_PIN_3        A2
-#define CURRENT_PIN_4        12
-#define CURRENT_PIN_5        7
-#define CURRENT_PIN_6        A3
+
 // battery variables
 
 struct battery_t{
 
-     uint8_t connected_bat;
 //   uint8_t bat_portNo[2];
      uint8_t design_capacity;
 //   const char* Manufacturer[2];
@@ -101,6 +99,7 @@ struct battery_t{
 // init variables
 bool bat_connected;
 battery_t battery;
+
 int heartbeat_LED = HEARBEAT_LED;
 
 //Voltage pins for battery
@@ -109,28 +108,20 @@ int v1_16_4 = VOLT_PIN_1;
 int v1_16_6 = VOLT_PIN_2;
 int v1_16_8 = VOLT_PIN_3;
 
-//Voltage pins for battery2
-
-int v2_16_4 = VOLT_PIN_4;
-int v2_16_6 = VOLT_PIN_5;
-int v2_16_8 = VOLT_PIN_6;
-
 // Current pins for battery1
 
  int I1_3a = CURRENT_PIN_1;
  int I1_4a = CURRENT_PIN_2;
  int I1_6a = CURRENT_PIN_3;
 
-// Current pins for battery2
 
-int I2_3a = CURRENT_PIN_4;
-int I2_4a = CURRENT_PIN_5;
-int I2_6a = CURRENT_PIN_6;
+Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); 
 
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  // Wire.setClock(400000);
   initBoard();
   bat_connected = false;
 //  screen.begin(DISPLAY_ADDRESS,true);
@@ -145,7 +136,7 @@ void loop() {
   
         if(!(bat_connected)) {
 
-        //    refreshScreen();
+            refreshScreen();
             resetCharger();         
 
         }      

@@ -98,7 +98,7 @@ void printBatInfo() {
 }
 
 void refreshScreen () {
-/*
+
 //digitalWrite(heartbeat_LED,LOW);  
 
 screen.clearDisplay();
@@ -109,7 +109,7 @@ screen.clearDisplay();
    screen.print(F("Waiting.."));
    screen.display();
    delay(2);
-*/
+
  //   digitalWrite(heartbeat_LED,HIGH);   
 //   Serial.println(F("Screen refreshed.."));
 
