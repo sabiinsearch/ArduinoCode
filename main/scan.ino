@@ -7,14 +7,14 @@ TEMP_LEVEL_4,                 // 3 for 45-47
 };
 
 float getTemp() {
-    
+    Serial.println("Getting Temp data...");
     byte byte_buffer[2];
     uint32_t myInt;
    
     Wire.beginTransmission(BAT_ADDRESS);
     Wire.write(TEMPERATURE);
     Wire.endTransmission();
-
+    delay(10);
     Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
      int k=0;
@@ -25,7 +25,8 @@ float getTemp() {
      }
 
      myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system
-
+     
+     Serial.println("Collected Temp data...");
      return ((float)myInt/10)-273;
 }
 
@@ -37,6 +38,7 @@ float getVolt() {
     Wire.beginTransmission(BAT_ADDRESS);   //  BAT_ADDRESS 
     Wire.write(VOLTAGE);
     Wire.endTransmission();
+    delay(10);
 
      Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
      int k=0;
@@ -48,7 +50,7 @@ float getVolt() {
      myInt = byte_buffer[0] + (byte_buffer[1] << 8);
        
 //     Serial.print((float)myInt/1000);   // convert Mili Volt to Volt
-     
+     Serial.println("Collected Volt data...");
      return ((float)myInt/1000); 
 }
 
@@ -62,6 +64,7 @@ unsigned int getAvgTimeToFull() {
     Wire.write(AVERAGE_TIME_TO_FULL); //  AVERAGE_TIME_TO_FULL
 
     Wire.endTransmission();
+    delay(10);
 
      Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
@@ -73,7 +76,7 @@ unsigned int getAvgTimeToFull() {
      }
 
      myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system
-
+     Serial.println("Collected Avg Time to Full data...");
      return (unsigned int)myInt;
 }
 
@@ -87,7 +90,8 @@ unsigned int getRemainingCapacity() {
     Wire.write(REMAINING_CAPACITY); //  AVERAGE_TIME_TO_FULL
 
     Wire.endTransmission();
-
+    
+    delay(10);
      Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
      int k=0;
@@ -98,7 +102,8 @@ unsigned int getRemainingCapacity() {
      }
 
      myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system
-
+    
+     Serial.println("Collected Remaining Capacity...");
      return (unsigned int)myInt;
 }
 
@@ -113,7 +118,7 @@ uint8_t getRelativeSOC() {
     Wire.write(RELATIVE_SOC);
 
     Wire.endTransmission();
-
+    delay(10);
      Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));     
      while(0 < Wire.available())
      {
@@ -124,6 +129,8 @@ uint8_t getRelativeSOC() {
     // myInt = byte_buffer[0];//<<32+byte_buffer[0]<<24+byte_buffer[0]<<16+byte_buffer[0]<<8;
    //  myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system     
 //     Serial.println(sizeof(byte_buffer));
+     
+     Serial.println("Collected Relative SoC...");
      return (uint8_t)myInt;
 }
 
@@ -137,7 +144,7 @@ float getChargingVoltage() {
     Wire.beginTransmission(BAT_ADDRESS);
     Wire.write(CHARGING_VOLTAGE);
     Wire.endTransmission();
-
+    delay(10);
      Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
      int k=0;
      while(0 < Wire.available())
@@ -161,6 +168,7 @@ int getDesignCapacity() {
          Wire.beginTransmission(BAT_ADDRESS);
          Wire.write(DESIGN_CAPACITY);
          Wire.endTransmission();
+         delay(10);
          Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
         int k=0;
@@ -172,6 +180,8 @@ int getDesignCapacity() {
           myInt = byte_buffer[0] + (byte_buffer[1] << 8);
           // Serial.print(F("Design Capacity received.."));
  //         Serial.println(myInt);
+          
+          Serial.println("Collected Design Capacity...");
           return myInt;           
 
 }
@@ -190,11 +200,12 @@ void setLevel() {
     } else if((battery.temp_level)) {                    
        battery.temp_level =  TEMP_LEVEL_4;
     }
+Serial.println("Level set as per Temp...");    
 }
 
 void setCharger() {
    
-   digitalWrite(heartbeat_LED,LOW);  
+//   digitalWrite(heartbeat_LED,LOW);  
 
    switch(battery.temp_level) {
     
@@ -262,27 +273,28 @@ void scan() {
                 digitalWrite(heartbeat_LED,LOW);  
 
                 Wire.beginTransmission(BAT_ADDRESS);
-                int response = Wire.endTransmission();
-              
+                byte response = Wire.endTransmission();
+                Serial.println(response);
+                delay(10);
                 if(response==0) {
 
                        bat_connected = true;    // set boolean batteries connected
-
+                        Serial.println(F("Bat connected.."));
                   // Get all connected battery data                                     
 
-                          battery.temp = getTemp();  // Temparature
-                    
-                          setLevel();  // set battery Level as per temparature
+                        //  battery.temp = getTemp();  // Temparature
+                          
+                        //  setLevel();  // set battery Level as per temparature
                            
-                          battery.voltage = getVolt();  // Voltage
+                          // battery.voltage = getVolt();  // Voltage
                         
-                          battery.avgTimeToFull = getAvgTimeToFull();  // AVERAGE_TIME_TO_FULL
+                          // battery.avgTimeToFull = getAvgTimeToFull();  // AVERAGE_TIME_TO_FULL
                          
-                          battery.remaingCapacity = getRemainingCapacity();   //  REMAINING_CAPACITY
+                          // battery.remaingCapacity = getRemainingCapacity();   //  REMAINING_CAPACITY
                          
-                          battery.relative_soc = getRelativeSOC();  // RELATIVE_SOC                
+                          // battery.relative_soc = getRelativeSOC();  // RELATIVE_SOC                
                         
-                          battery.design_capacity = getDesignCapacity();  // DESIGN_CAPACITY
+                          // battery.design_capacity = getDesignCapacity();  // DESIGN_CAPACITY
                                               
               //        }
                   

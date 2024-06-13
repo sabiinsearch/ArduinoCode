@@ -55,7 +55,7 @@
 #define SCREEN_HEIGHT           64 // OLED display height, in pixels
 #define OLED_RESET              4    //   QT-PY / XIAO
 
-Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);  
+//Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);  
 
 // other variables
 
@@ -133,7 +133,9 @@ void setup() {
   Serial.begin(9600);
   initBoard();
   bat_connected = false;
-  screen.begin(DISPLAY_ADDRESS,true);
+//  screen.begin(DISPLAY_ADDRESS,true);
+  Wire.beginTransmission(BAT_ADDRESS);
+  
 }
 
 void loop() {
@@ -143,7 +145,7 @@ void loop() {
   
         if(!(bat_connected)) {
 
-            refreshScreen();
+        //    refreshScreen();
             resetCharger();         
 
         }      
@@ -152,18 +154,19 @@ void loop() {
                  Serial.println(F("printing Bat info"));
                  printBatInfo();
                  setCharger();
-                 displayOnScreen();
+//                 displayOnScreen();
                        
 //            delay(100);
 
 //           Serial.println(F("Exiting main loop"));
+           for(uint8_t i=0;i<100;i++) {
+              digitalWrite(heartbeat_LED,HIGH);
+               delay(100);
+              digitalWrite(heartbeat_LED,HIGH);
+               delay(100);
+            } 
         }
 
-           for(uint8_t i=0;i<5;i++) {
-              digitalWrite(heartbeat_LED,HIGH);
-               delay(200);
-              digitalWrite(heartbeat_LED,HIGH);
-               delay(200);
-            }    
+   
 
 }

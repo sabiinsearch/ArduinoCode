@@ -1,7 +1,8 @@
-void displayOnScreen() {
 
+void displayOnScreen() {
+/*
 //  Serial.println(F("Display.."));
-  digitalWrite(heartbeat_LED,LOW); 
+//  digitalWrite(heartbeat_LED,LOW); 
 
   if(!(bat_connected)) {
    screen.clearDisplay();
@@ -62,12 +63,13 @@ void displayOnScreen() {
    screen.display();
    delay(2);
 
-//   digitalWrite(heartbeat_LED,HIGH);  
+//   digitalWrite(heartbeat_LED,HIGH);
+*/  
 }
 
 void printBatInfo() {
 
-          digitalWrite(heartbeat_LED,LOW);  
+//          digitalWrite(heartbeat_LED,LOW);  
           // Serial.print(F("Bat: "));
           // Serial.print(i+1);       
           // Serial.print(F("  volt: "));       
@@ -96,8 +98,8 @@ void printBatInfo() {
 }
 
 void refreshScreen () {
-
-digitalWrite(heartbeat_LED,LOW);  
+/*
+//digitalWrite(heartbeat_LED,LOW);  
 
 screen.clearDisplay();
    delay(2);
@@ -107,7 +109,7 @@ screen.clearDisplay();
    screen.print(F("Waiting.."));
    screen.display();
    delay(2);
-
+*/
  //   digitalWrite(heartbeat_LED,HIGH);   
 //   Serial.println(F("Screen refreshed.."));
 

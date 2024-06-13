@@ -34,7 +34,7 @@ void initBoard() {
 
 void resetCharger() {
 
-       digitalWrite(heartbeat_LED,LOW);
+//       digitalWrite(heartbeat_LED,LOW);
 
        digitalWrite(v1_16_4,LOW);
        digitalWrite(v1_16_6,LOW);
