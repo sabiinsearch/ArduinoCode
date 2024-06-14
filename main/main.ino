@@ -142,9 +142,11 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(!(digitalRead(button_pin)==HIGH)) {
-    Serial.print(F("Button: "));
-    Serial.println(digitalRead(button_pin));
+  //digitalWrite(button_pin,LOW);
+  delay(2);
+  //if(!(digitalRead(button_pin)==HIGH)) {
+    // Serial.print(F("Button: "));
+    // Serial.println(digitalRead(button_pin));
      scan();
         
         if(!(bat_connected)) {
@@ -163,9 +165,7 @@ void loop() {
 
 //           Serial.println(F("Exiting main loop"));
 
-            } 
-           
-        
+            }                    
            for(uint8_t i=0;i<10;i++) {
               digitalWrite(heartbeat_LED,LOW);
                delay(100);
@@ -175,17 +175,15 @@ void loop() {
 
    delay(4000);
   }
-  else{   
-        Serial.print(F("Button: "));
-        Serial.println(digitalRead(button_pin));
+  // else{   
+  //       Serial.print(F("Button: "));
+  //       Serial.println(digitalRead(button_pin));
         
-          for(uint8_t i=0;i<20;i++) {
-              digitalWrite(heartbeat_LED,LOW);
-               delay(100);
-              digitalWrite(heartbeat_LED,HIGH);
-               delay(100);
-           }
-           digitalWrite(button_pin,LOW);
-  }
+  //         for(uint8_t i=0;i<20;i++) {
+  //             digitalWrite(heartbeat_LED,LOW);
+  //              delay(100);
+  //             digitalWrite(heartbeat_LED,HIGH);
+  //              delay(100);
+  //          }
 
-}
+

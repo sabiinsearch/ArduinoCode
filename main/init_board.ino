@@ -11,7 +11,7 @@ void initBoard() {
   pinMode(sda_pin,INPUT);
   pinMode(scl_pin,INPUT);
 
-  pinMode(button_pin,INPUT);
+//  pinMode(button_pin,OUTPUT);
   // digitalWrite(button_pin,LOW);
 
   pinMode(heartbeat_LED,OUTPUT);

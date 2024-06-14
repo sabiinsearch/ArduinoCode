@@ -274,6 +274,7 @@ void resetSavedValues() {
 }
 
 void scan() {
+                Wire.begin();
                 screen.clearDisplay();
                 bat_connected = false;
                 resetSavedValues(); 
@@ -311,7 +312,7 @@ void scan() {
 
 //             Serial.println(" ");
                Serial.println(F("Scaning done.."));
-               digitalWrite(button_pin,LOW);
+               Wire.end();
 //               digitalWrite(heartbeat_LED,HIGH);                  
 }                                  
            
