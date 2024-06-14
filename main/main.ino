@@ -69,12 +69,18 @@
 #define VOLT_PIN_2        10
 #define VOLT_PIN_3        11
 
-#define CURRENT_PIN_1        6
-#define CURRENT_PIN_2        A1
-#define CURRENT_PIN_3        A2
+#define CURRENT_PIN_1     6
+#define CURRENT_PIN_2     A1
+#define CURRENT_PIN_3     A2
+
+#define BUTTON_PIN        5
+
+#define SDA               A4
+#define SCL               A5
 
 // battery variables
 
+/*
 struct battery_t{
 
 //   uint8_t bat_portNo[2];
@@ -94,15 +100,19 @@ struct battery_t{
      uint8_t absolute_soc;
      float chargingVoltage;
 };
-
+*/
 
 // init variables
 bool bat_connected;
-battery_t battery;
-uint8_t bat_temp;
+//battery_t battery;
+uint8_t temp;
 uint8_t temp_level;
 
+int scl_pin = SCL;
+int sda_pin = SDA;
+
 int heartbeat_LED = HEARBEAT_LED;
+int button_pin = BUTTON_PIN;
 
 //Voltage pins for battery
 
@@ -132,9 +142,11 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
-  scan();
-  
+  if(!(digitalRead(button_pin)==HIGH)) {
+    Serial.print(F("Button: "));
+    Serial.println(digitalRead(button_pin));
+     scan();
+        
         if(!(bat_connected)) {
 
             refreshScreen();
@@ -154,13 +166,26 @@ void loop() {
             } 
            
         
-           for(uint8_t i=0;i<50;i++) {
+           for(uint8_t i=0;i<10;i++) {
               digitalWrite(heartbeat_LED,LOW);
                delay(100);
               digitalWrite(heartbeat_LED,HIGH);
                delay(100);
            }
-   
-   //delay(5000);
+
+   delay(4000);
+  }
+  else{   
+        Serial.print(F("Button: "));
+        Serial.println(digitalRead(button_pin));
+        
+          for(uint8_t i=0;i<20;i++) {
+              digitalWrite(heartbeat_LED,LOW);
+               delay(100);
+              digitalWrite(heartbeat_LED,HIGH);
+               delay(100);
+           }
+           digitalWrite(button_pin,LOW);
+  }
 
 }

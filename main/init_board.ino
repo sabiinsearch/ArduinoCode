@@ -8,6 +8,12 @@ void initBoard() {
   pinMode(I1_4a,OUTPUT);
   pinMode(I1_6a,OUTPUT);
 
+  pinMode(sda_pin,INPUT);
+  pinMode(scl_pin,INPUT);
+
+  pinMode(button_pin,INPUT);
+  // digitalWrite(button_pin,LOW);
+
   pinMode(heartbeat_LED,OUTPUT);
   digitalWrite(heartbeat_LED,HIGH);
 

@@ -15,7 +15,7 @@ float getTemp() {
     Wire.beginTransmission(BAT_ADDRESS);
     Wire.write(TEMPERATURE);
     Wire.endTransmission();
-    delay(10);
+//    delay(10);
     Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
      int k=0;
@@ -189,17 +189,17 @@ int getDesignCapacity() {
 
 void setLevel() {
 
-    if((battery.temp<=9)) {
-       battery.temp_level =  TEMP_LEVEL_1;   
+    if((temp<=9)) {
+       temp_level =  TEMP_LEVEL_1;   
 
-    } else if((battery.temp>9) && (battery.temp<=47)) {
-       battery.temp_level =  TEMP_LEVEL_2;
+    } else if((temp>9) && (temp<=47)) {
+       temp_level =  TEMP_LEVEL_2;
 
-    } else if((battery.temp>47) && (battery.temp<=54)) { 
-       battery.temp_level =  TEMP_LEVEL_3;
+    } else if((temp>47) && (temp<=54)) { 
+       temp_level =  TEMP_LEVEL_3;
 
-    } else if((battery.temp>55)) {                    
-       battery.temp_level =  TEMP_LEVEL_4;
+    } else if((temp>55)) {                    
+       temp_level =  TEMP_LEVEL_4;
     }
 //Serial.println("Level set as per Temp...");    
 }
@@ -208,7 +208,7 @@ void setCharger() {
    
 //   digitalWrite(heartbeat_LED,LOW);  
 
-   switch(battery.temp_level) {
+   switch(temp_level) {
     
     case TEMP_LEVEL_1:
 
@@ -260,17 +260,17 @@ void setCharger() {
          digitalWrite(I1_6a, LOW);  
 
                       break;
-         case TEMP_LEVEL_5:
-             resetCharger();  
-             break;        
+    case TEMP_LEVEL_5:
+         resetCharger();  
+                       break;        
 
    }
 //        digitalWrite(heartbeat_LED,HIGH);  
 }
 
 void resetSavedValues() {
-  battery.temp = 0;
-  battery.temp_level=0;
+  temp = 0;
+  temp_level=0;
 }
 
 void scan() {
@@ -288,7 +288,7 @@ void scan() {
                         Serial.println(F("Bat connected.."));
                   // Get all connected battery data                                     
 
-                          battery.temp = getTemp();  // Temparature
+                          temp = getTemp();  // Temparature
                           
                           setLevel();  // set battery Level as per temparature
                            
@@ -311,6 +311,7 @@ void scan() {
 
 //             Serial.println(" ");
                Serial.println(F("Scaning done.."));
+               digitalWrite(button_pin,LOW);
 //               digitalWrite(heartbeat_LED,HIGH);                  
 }                                  
            
