@@ -105,8 +105,8 @@ struct battery_t{
 // init variables
 bool bat_connected;
 //battery_t battery;
-uint8_t temp;
-uint8_t temp_level;
+static uint8_t temparature;
+static uint8_t temparature_level;
 
 int scl_pin = SCL;
 int sda_pin = SDA;
@@ -132,7 +132,9 @@ Adafruit_SH1106G screen = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, O
 
 void setup() {
   // put your setup code here, to run once:
+  Wire.begin();
   Serial.begin(9600);
+  
   // Wire.setClock(400000);
   initBoard();
   bat_connected = false;
@@ -141,12 +143,7 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //digitalWrite(button_pin,LOW);
-  delay(2);
-  //if(!(digitalRead(button_pin)==HIGH)) {
-    // Serial.print(F("Button: "));
-    // Serial.println(digitalRead(button_pin));
+   
      scan();
         
         if(!(bat_connected)) {
@@ -166,6 +163,7 @@ void loop() {
 //           Serial.println(F("Exiting main loop"));
 
             }                    
+
            for(uint8_t i=0;i<10;i++) {
               digitalWrite(heartbeat_LED,LOW);
                delay(100);
@@ -173,7 +171,7 @@ void loop() {
                delay(100);
            }
 
-   delay(4000);
+   
   }
   // else{   
   //       Serial.print(F("Button: "));

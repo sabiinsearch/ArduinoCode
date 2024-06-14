@@ -8,8 +8,8 @@ void initBoard() {
   pinMode(I1_4a,OUTPUT);
   pinMode(I1_6a,OUTPUT);
 
-  pinMode(sda_pin,INPUT);
-  pinMode(scl_pin,INPUT);
+  pinMode(sda_pin,OUTPUT);
+  pinMode(scl_pin,OUTPUT);
 
 //  pinMode(button_pin,OUTPUT);
   // digitalWrite(button_pin,LOW);

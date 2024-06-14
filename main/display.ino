@@ -37,13 +37,13 @@ void displayOnScreen() {
            screen.setCursor(x,y);
            screen.print("T");
            screen.setCursor(x+10,y);
-           screen.print(temp);
+           screen.print(temparature);
 
 
            screen.setCursor(x+1,y+10);
            screen.print("L");
            screen.setCursor(x+10,y+10);
-           screen.print(temp_level);
+           screen.print(temparature_level);
            
            // appMgr->displayMgr->screen->print(F("Bat@"));
            //appMgr->displayMgr->screen->print(i+1);
@@ -75,10 +75,10 @@ void printBatInfo() {
           // Serial.print(F("  volt: "));       
           // Serial.print(appMgr->voltage[i]);
            Serial.print(F("  T: "));
-           Serial.println(temp);
+           Serial.println(temparature);
 
            Serial.print(F("  L: "));
-           Serial.println(temp_level);
+           Serial.println(temparature_level);
 
           // Serial.print(F("  Capacity: "));
           // Serial.print(appMgr->design_capacity[i]);

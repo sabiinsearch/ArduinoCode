@@ -9,13 +9,15 @@ TEMP_LEVEL_5                  // Reset
 
 float getTemp() {
 //    Serial.println("Getting Temp data...");
+    byte reply;
     byte byte_buffer[2];
-    uint32_t myInt;
-   
+    uint32_t myInt=0;
+    
     Wire.beginTransmission(BAT_ADDRESS);
     Wire.write(TEMPERATURE);
-    Wire.endTransmission();
+    reply = Wire.endTransmission(true);
 //    delay(10);
+    if(reply == 0) {
     Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
      int k=0;
@@ -26,8 +28,12 @@ float getTemp() {
      }
 
      myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system
-     
+    }
 //     Serial.println("Collected Temp data...");
+     Wire.flush();
+     Wire.end();
+     digitalWrite(scl_pin,LOW);
+     
      return ((float)myInt/10)-273;
 }
 
@@ -189,17 +195,17 @@ int getDesignCapacity() {
 
 void setLevel() {
 
-    if((temp<=9)) {
-       temp_level =  TEMP_LEVEL_1;   
+    if((temparature<=9)) {
+       temparature_level =  TEMP_LEVEL_1;   
 
-    } else if((temp>9) && (temp<=47)) {
-       temp_level =  TEMP_LEVEL_2;
+    } else if((temparature>9) && (temparature<=47)) {
+       temparature_level =  TEMP_LEVEL_2;
 
-    } else if((temp>47) && (temp<=54)) { 
-       temp_level =  TEMP_LEVEL_3;
+    } else if((temparature>47) && (temparature<=54)) { 
+       temparature_level =  TEMP_LEVEL_3;
 
-    } else if((temp>55)) {                    
-       temp_level =  TEMP_LEVEL_4;
+    } else if((temparature>55)) {                    
+       temparature_level =  TEMP_LEVEL_4;
     }
 //Serial.println("Level set as per Temp...");    
 }
@@ -208,7 +214,7 @@ void setCharger() {
    
 //   digitalWrite(heartbeat_LED,LOW);  
 
-   switch(temp_level) {
+   switch(temparature_level) {
     
     case TEMP_LEVEL_1:
 
@@ -269,27 +275,38 @@ void setCharger() {
 }
 
 void resetSavedValues() {
-  temp = 0;
-  temp_level=0;
+  temparature = 1;
+  temparature_level = 1;
+  Serial.print(F("Values reset.."));
+  Serial.print(temparature);
+  Serial.print(F("\t"));
+  Serial.println(temparature_level);
 }
 
 void scan() {
-                Wire.begin();
-                screen.clearDisplay();
-                bat_connected = false;
-                resetSavedValues(); 
+         
+               Serial.print(F("Scaning start.."));
+               screen.clearDisplay();
+               bat_connected = false;
+               resetSavedValues();
 
-                Wire.beginTransmission(BAT_ADDRESS);
-                byte response = Wire.endTransmission();
-                Serial.println(response);
-                
-                if(response==0) {
+//               Wire.getWireTimeoutFlag();
+               
+//               Wire.begin();
+ 
+
+                // Wire.beginTransmission(BAT_ADDRESS);
+                // byte response = Wire.endTransmission();
+                // Serial.println(response);
+                temparature = getTemp();  // Temparature
+                Serial.println(temparature);
+                if((temparature!=8) &&(temparature<100)) {
 
                        bat_connected = true;    // set boolean batteries connected
-                        Serial.println(F("Bat connected.."));
+                       Serial.println(F("Bat connected.."));
                   // Get all connected battery data                                     
 
-                          temp = getTemp();  // Temparature
+                        //  temp = getTemp();  // Temparature
                           
                           setLevel();  // set battery Level as per temparature
                            
@@ -312,7 +329,11 @@ void scan() {
 
 //             Serial.println(" ");
                Serial.println(F("Scaning done.."));
-               Wire.end();
+
+
+               delay(5000);
+
+
 //               digitalWrite(heartbeat_LED,HIGH);                  
 }                                  
            
