@@ -63,7 +63,7 @@
 
 // other variables
 
-#define HEARBEAT_LED      7
+#define HEARBEAT_LED      13// 7
 
 #define VOLT_PIN_1        9
 #define VOLT_PIN_2        10
@@ -105,7 +105,7 @@ struct battery_t{
 // init variables
 bool bat_connected;
 //battery_t battery;
-static uint8_t temparature;
+static uint8_t temparature=500;
 static uint8_t temparature_level;
 
 int scl_pin = SCL;
@@ -143,20 +143,20 @@ void setup() {
 }
 
 void loop() {
-   
+     blink();
      scan();
         
         if(!(bat_connected)) {
 
-            refreshScreen();
-            resetCharger();         
+//            refreshScreen();
+//            resetCharger();         
 
         }      
         else {
                  
                  printBatInfo();
                  setCharger();
-                 displayOnScreen();
+//                 displayOnScreen();
                        
 //            delay(100);
 
@@ -164,14 +164,15 @@ void loop() {
 
             }                    
 
-           for(uint8_t i=0;i<10;i++) {
-              digitalWrite(heartbeat_LED,LOW);
-               delay(100);
-              digitalWrite(heartbeat_LED,HIGH);
-               delay(100);
-           }
+          //  for(uint8_t i=0;i<10;i++) {
+          //     digitalWrite(heartbeat_LED,LOW);
+          //      delay(100);
+          //     digitalWrite(heartbeat_LED,HIGH);
+          //      delay(100);
+          //  }
+          blink();
 
-   
+   delay(2000);
   }
   // else{   
   //       Serial.print(F("Button: "));

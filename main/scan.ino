@@ -1,3 +1,4 @@
+
 enum temp_values {
   // CHARGER VALUES
 TEMP_LEVEL_1,                 // 0 for 0-9
@@ -12,11 +13,31 @@ float getTemp() {
     byte reply;
     byte byte_buffer[2];
     uint32_t myInt=0;
+    // digitalWrite(scl_pin,LOW);
+    // digitalWrite(sda_pin,LOW);
     
     Wire.beginTransmission(BAT_ADDRESS);
+
+   // Wire.clearWireTimeoutFlag();
+   
+   bool flag = Wire.getWireTimeoutFlag();
+    Wire.clearWireTimeoutFlag();
+    // Serial.print(F("Flag: "));    
+    // Serial.println(flag);
+    
+    // if(!flag) {
+    //    return ((float)myInt/10)-273;
+    // }
+
+    if(!flag) {
+    Wire.setWireTimeout(2500,true);
     Wire.write(TEMPERATURE);
     reply = Wire.endTransmission(true);
+    Wire.clearWriteError();
 //    delay(10);
+    if(reply== 5) {
+      Serial.println(F("I2C timeout.."));
+    }
     if(reply == 0) {
     Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
@@ -31,8 +52,12 @@ float getTemp() {
     }
 //     Serial.println("Collected Temp data...");
      Wire.flush();
+     delay(10);  
      Wire.end();
-     digitalWrite(scl_pin,LOW);
+//     digitalWrite(scl_pin,LOW);
+}    
+       
+//     Wire.setWireTimeout(2500,false); 
      
      return ((float)myInt/10)-273;
 }
@@ -271,22 +296,34 @@ void setCharger() {
                        break;        
 
    }
-//        digitalWrite(heartbeat_LED,HIGH);  
+//        digitalWrite(heartbeat_LED,HIGH); 
+Serial.println(F("Charging set..")); 
+Serial.println(F("*********"));
+Serial.println();
+}
+
+void blink() {
+  digitalWrite(HEARBEAT_LED,HIGH);
+  delay(100);
+  digitalWrite(HEARBEAT_LED,LOW); 
+  delay(100);
 }
 
 void resetSavedValues() {
-  temparature = 1;
-  temparature_level = 1;
-  Serial.print(F("Values reset.."));
-  Serial.print(temparature);
-  Serial.print(F("\t"));
-  Serial.println(temparature_level);
+  temparature = 500;
+  temparature_level = 10;
+  Serial.println(F("Values reset.."));
+  // Serial.print(F("T: "));
+  // Serial.print(temparature);
+  // Serial.print(F("  "));
+  // Serial.print(F("Level: "));
+  // Serial.println(temparature_level);
 }
 
 void scan() {
-         
-               Serial.print(F("Scaning start.."));
-               screen.clearDisplay();
+               blink();
+               Serial.println(F("Scaning start.."));
+               //screen.clearDisplay();
                bat_connected = false;
                resetSavedValues();
 
@@ -299,11 +336,11 @@ void scan() {
                 // byte response = Wire.endTransmission();
                 // Serial.println(response);
                 temparature = getTemp();  // Temparature
-                Serial.println(temparature);
+//                Serial.println(temparature);
                 if((temparature!=8) &&(temparature<100)) {
 
                        bat_connected = true;    // set boolean batteries connected
-                       Serial.println(F("Bat connected.."));
+                       Serial.print(F("Bat connected.."));
                   // Get all connected battery data                                     
 
                         //  temp = getTemp();  // Temparature
@@ -325,13 +362,18 @@ void scan() {
               //  }
               } else {
                 bat_connected = false;
+                Serial.println(F("Battery not connected.."));
+                Serial.println(F("*********"));
+                Serial.println();
               }            
 
 //             Serial.println(" ");
-               Serial.println(F("Scaning done.."));
+//               Serial.println(F("Scaning done.."));
 
 
                delay(5000);
+               blink();
+         
 
 
 //               digitalWrite(heartbeat_LED,HIGH);                  

@@ -74,10 +74,10 @@ void printBatInfo() {
           // Serial.print(i+1);       
           // Serial.print(F("  volt: "));       
           // Serial.print(appMgr->voltage[i]);
-           Serial.print(F("  T: "));
-           Serial.println(temparature);
+           Serial.print(F("  T:"));
+           Serial.print(temparature);
 
-           Serial.print(F("  L: "));
+           Serial.print(F("   L:"));
            Serial.println(temparature_level);
 
           // Serial.print(F("  Capacity: "));
