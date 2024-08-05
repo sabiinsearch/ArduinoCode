@@ -471,19 +471,25 @@ float getTemp(appManager* appMgr, uint8_t counter) {
    bool flag = Wire.getWireTimeoutFlag();
 
     Wire.clearWireTimeoutFlag();
+
     if(!flag) {
+
     int while_loop_counter = 0;   // counter to confirm battery not connected..
-    do {
 
-    while_loop_counter++;  
+    while(reply != 0) {
+
+      while_loop_counter++;  
     
-    Wire.setWireTimeout(2500,true);
-    Wire.write(TEMPERATURE);
-    reply = Wire.endTransmission(true);    
-    Wire.clearWriteError(); 
-    delay(10);
+      Wire.setWireTimeout(2500,true);
+      Wire.write(TEMPERATURE);
+      reply = Wire.endTransmission(true);    
+      Wire.clearWriteError(); 
+      delay(20);
 
-      if((while_loop_counter>40) && (reply !=0)) {
+    };
+     
+
+     if((reply !=0) && (while_loop_counter>40)) {
 
                 appMgr->connected_bat = false;
                 digitalWrite(BATTERY_LED,HIGH);
@@ -494,18 +500,13 @@ float getTemp(appManager* appMgr, uint8_t counter) {
                 // Serial.println(F("*********"));
                 // Serial.println();
 
-    }
-    } while(reply != 0);
-
-      while_loop_counter = 0;
-
-
-    if(reply == 0) {
-
-    if(counter=0) {
+    }    
+      
+    if((reply == 0) && (counter=0)) {
+    
      Serial.println(F("Bat connected.."));
     
-    }else if(counter>0)  {
+    }else if((reply == 0) && (counter>0))  {
       Serial.print(F("."));
     }
     
@@ -531,9 +532,7 @@ float getTemp(appManager* appMgr, uint8_t counter) {
      Wire.flush();
      delay(10);  
      Wire.end();
-//     digitalWrite(scl_pin,LOW);
-}    
-       
+//     digitalWrite(scl_pin,LOW);       
 //     Wire.setWireTimeout(2500,false); 
      
      return ((float)myInt/10)-273;
@@ -553,22 +552,23 @@ void scan(appManager* appMgr) {
 
                resetSavedValues(appMgr);
                               
-                // temp_temp = getTemp(appMgr,0);  // Temparature                
+                 temp_temp = getTemp(appMgr,0);  // Temparature                
              
-                // if(appMgr->connected_bat) {
+                 if(appMgr->connected_bat) {
                         uint8_t while_counter = 0;
 
                         while((temp_temp>150) || (temp_temp<0)) {   // store valid temp value
                           temp_temp = getTemp(appMgr,while_counter++);                           
-                          delay(10); 
+                          delay(50); 
                         }
                           appMgr->temp = temp_temp;
                           temp_temp=0;
+
                           appMgr->relative_soc = getRelativeSOC(appMgr);  // RELATIVE_SOC                
 
-              // } else {
-
-              // }            
+              } else {
+                   digitalWrite(BATTERY_LED,HIGH);
+              }            
 
                delay(1000);
                blink();
@@ -581,8 +581,6 @@ void tcaselect(uint8_t i) {
    Wire.write(1<<i);
    Wire.endTransmission();
 }
-
-
 
 
 void setVolt(appManager* appMgr,uint8_t state) {
