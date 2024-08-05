@@ -52,8 +52,8 @@
 #define CELL1_VOLTAGE            0x3F
 #define STATE_OF_HEALTH          0x54
 
-#define CHARGING_VAL             135
-#define NOT_CHARGING_VAL         199
+#define CHARGING_MAX            150
+#define CHARGING_MIN            100
 
 
 

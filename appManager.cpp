@@ -172,15 +172,15 @@ void initBoard() {
   // digitalWrite(button_pin,LOW);
 }
 
-void stopCharging(appManager* appMgr) {
+void stopCharging() {
 
-  digitalWrite(v1_16_4,HIGH);
-  digitalWrite(v1_16_6,HIGH);
-  digitalWrite(v1_16_8,HIGH);
+  digitalWrite(v1_16_4,LOW);
+  digitalWrite(v1_16_6,LOW);
+  digitalWrite(v1_16_8,LOW);
 
-  digitalWrite(I1_3a,HIGH);
-  digitalWrite(I1_4a,HIGH);
-  digitalWrite(I1_6a,HIGH);
+  digitalWrite(I1_3a,LOW);
+  digitalWrite(I1_4a,LOW);
+  digitalWrite(I1_6a,LOW);
 
 }
 
@@ -198,18 +198,23 @@ void blink() {
 
 void setLevel(appManager* appMgr) {
 
-    if((appMgr->temp<=9)) {
+    if((DUMMY_LEVEL < 5) && (appMgr->temp<=9)) {
        appMgr->temp_level =  TEMP_LEVEL_1;   
 
-    } else if((appMgr->temp>9) && (appMgr->temp<=47)) {
+    } else if((DUMMY_LEVEL < 5) && (appMgr->temp>9) && (appMgr->temp<=47)) {
        appMgr->temp_level =  TEMP_LEVEL_2;
 
-    } else if((appMgr->temp>47) && (appMgr->temp<=54)) { 
+    } else if((DUMMY_LEVEL < 5) && (appMgr->temp>47) && (appMgr->temp<=54)) { 
        appMgr->temp_level =  TEMP_LEVEL_3;
 
-    } else if((appMgr->temp>55)) {                    
+    } else if((DUMMY_LEVEL < 5) && (appMgr->temp>55)) {                    
        appMgr->temp_level =  TEMP_LEVEL_4;
     }
+     
+    if((DUMMY_LEVEL>5)) {
+        Serial.print(F("Dummy Level set.."));
+        appMgr->temp_level = DUMMY_LEVEL;
+     }
 //Serial.println("Level set as per Temp...");    
 }
 
@@ -273,9 +278,52 @@ void setCharger(appManager* appMgr) {
 
                       break;
     case TEMP_LEVEL_5:
-         setCharger(appMgr);  
-                       break;        
-   
+         resetCharger();  
+                       break;    
+    case DUMMY_LEVEL:
+
+           if(DUMMY_LEVEL==6) {
+              digitalWrite(v1_16_4, LOW);
+              digitalWrite(v1_16_6, LOW);          
+              digitalWrite(v1_16_8, LOW);
+
+              digitalWrite(I1_3a, LOW);
+              digitalWrite(I1_4a, LOW);             
+              digitalWrite(I1_6a, LOW);  
+           }
+
+           if(DUMMY_LEVEL==7) {
+              digitalWrite(v1_16_4, HIGH);
+              digitalWrite(v1_16_6, LOW);          
+              digitalWrite(v1_16_8, LOW);
+
+              digitalWrite(I1_3a, HIGH);
+              digitalWrite(I1_4a, LOW);             
+              digitalWrite(I1_6a, LOW);  
+           }
+
+           if(DUMMY_LEVEL==8) {
+              digitalWrite(v1_16_4, LOW);
+              digitalWrite(v1_16_6, HIGH);          
+              digitalWrite(v1_16_8, LOW);
+
+              digitalWrite(I1_3a, LOW);
+              digitalWrite(I1_4a, HIGH);             
+              digitalWrite(I1_6a, LOW);  
+           }
+
+           if(DUMMY_LEVEL==9) {
+              digitalWrite(v1_16_4, LOW);
+              digitalWrite(v1_16_6, LOW);          
+              digitalWrite(v1_16_8, HIGH);
+
+              digitalWrite(I1_3a, LOW);
+              digitalWrite(I1_4a, LOW);             
+              digitalWrite(I1_6a, HIGH);  
+           }
+          break;
+           
+
   }
 //        digitalWrite(heartbeat_LED,HIGH);     
    
@@ -348,14 +396,33 @@ uint8_t getChargingCurrent(appManager* appMgr) {
     // }
 
     if(!flag) {
-  //  Wire.setWireTimeout(2500,true);
+      int while_loop_counter = 0;   // counter to confirm battery not connected..
+    do {
+
+    while_loop_counter++;  
+    
+    Wire.setWireTimeout(2500,true);
     Wire.write(BATTERY_STATUS);
-    reply = Wire.endTransmission(true);
-    Wire.clearWriteError();
-//    delay(10);
-    if(reply== 5) {
-      Serial.println(F("I2C timeout.."));
+    reply = Wire.endTransmission(true);    
+    Wire.clearWriteError(); 
+    delay(10);
+
+      if((while_loop_counter>40) && (reply !=0)) {
+
+                appMgr->connected_bat = false;
+                digitalWrite(BATTERY_LED,HIGH);
+                digitalWrite(CHARGING_LED_ON,HIGH);
+                digitalWrite(CHARGE_FULL_LED,HIGH);
+                stopCharging();
+                // Serial.println(F("Battery not connected.."));
+                // Serial.println(F("*********"));
+                // Serial.println();
+
     }
+    } while(reply != 0);
+
+      while_loop_counter = 0;
+
     if(reply == 0) {
       Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
 
@@ -389,7 +456,7 @@ uint8_t getChargingCurrent(appManager* appMgr) {
     }
 } 
 
-float getTemp(appManager* appMgr) {
+float getTemp(appManager* appMgr, uint8_t counter) {
 //    Serial.println("Getting Temp data...");
     byte reply=5;
     byte byte_buffer[2];
@@ -416,13 +483,13 @@ float getTemp(appManager* appMgr) {
     Wire.clearWriteError(); 
     delay(10);
 
-      if((while_loop_counter>30) && (reply !=0)) {
+      if((while_loop_counter>40) && (reply !=0)) {
 
                 appMgr->connected_bat = false;
                 digitalWrite(BATTERY_LED,HIGH);
                 digitalWrite(CHARGING_LED_ON,HIGH);
                 digitalWrite(CHARGE_FULL_LED,HIGH);
-                stopCharging(appMgr);
+                stopCharging();
                 // Serial.println(F("Battery not connected.."));
                 // Serial.println(F("*********"));
                 // Serial.println();
@@ -434,10 +501,16 @@ float getTemp(appManager* appMgr) {
 
 
     if(reply == 0) {
-   
-     appMgr->connected_bat = true;    // set boolean batteries connected
-     Serial.print(F("Bat connected.."));
-     digitalWrite(BATTERY_LED,LOW);
+
+    if(counter=0) {
+     Serial.println(F("Bat connected.."));
+    
+    }else if(counter>0)  {
+      Serial.print(F("."));
+    }
+    
+    appMgr->connected_bat = true;    // set boolean batteries connected  
+    digitalWrite(BATTERY_LED,LOW);                 
                   // Get all connected battery data          
 
     Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
@@ -470,7 +543,7 @@ float getTemp(appManager* appMgr) {
 /************ Scan ********/
 void scan(appManager* appMgr) {
 
-               float temp_temp;
+               float temp_temp=-1;
 
                blink();
 
@@ -480,20 +553,22 @@ void scan(appManager* appMgr) {
 
                resetSavedValues(appMgr);
                               
-                temp_temp = getTemp(appMgr);  // Temparature                
+                // temp_temp = getTemp(appMgr,0);  // Temparature                
              
-                if(appMgr->connected_bat) {
-                        
+                // if(appMgr->connected_bat) {
+                        uint8_t while_counter = 0;
+
                         while((temp_temp>150) || (temp_temp<0)) {   // store valid temp value
-                          temp_temp = getTemp(appMgr);  
+                          temp_temp = getTemp(appMgr,while_counter++);                           
+                          delay(10); 
                         }
                           appMgr->temp = temp_temp;
                           temp_temp=0;
                           appMgr->relative_soc = getRelativeSOC(appMgr);  // RELATIVE_SOC                
 
-              } else {
+              // } else {
 
-              }            
+              // }            
 
                delay(1000);
                blink();
@@ -525,33 +600,37 @@ void setCurrent(appManager* appMgr) {
            
        appMgr->chargingCurrent = charging_current;              // Save to variable for later access               
 
-       if((digitalRead(CHARGING_LED_ON) != LOW)) {
-
-
-       if((charging_current+5<=CHARGING_VAL) && (charging_current >0) && (charging_current !=1 ) ) {               
+       if((digitalRead(CHARGING_LED_ON) != LOW) && ((charging_current<CHARGING_MAX) && (charging_current>CHARGING_MIN))) {               
 
           digitalWrite(CHARGING_LED_ON,LOW);
 //          digitalWrite(BATTERY_LED,HIGH);   
 
        } else {
+          if (!((charging_current<CHARGING_MAX) && (charging_current>CHARGING_MIN))) { 
+            digitalWrite(CHARGING_LED_ON,HIGH);
+          }
+          // if((charging_current >= NOT_CHARGING_VAL) || (charging_current<10)) {
 
-          if((charging_current >= NOT_CHARGING_VAL-5)) {
-
-            if(appMgr->connected_bat) {
-             digitalWrite(BATTERY_LED,LOW);
-             }
-           digitalWrite(CHARGING_LED_ON,HIGH);
-           }
+          //   if(appMgr->connected_bat) {
+          //    digitalWrite(BATTERY_LED,LOW);
+          //    }
+          //  digitalWrite(CHARGING_LED_ON,HIGH);
+          //  Serial.println(F("Not Charging.."));
+          //  }
         }
-       }
 
 }
  
  void resetCharger() {
         
-        digitalWrite(v1_16_6, LOW);
-        digitalWrite(v1_16_8, LOW);
-        digitalWrite(v1_16_4, LOW);
+  digitalWrite(v1_16_4,LOW);
+  digitalWrite(v1_16_6,LOW);
+  digitalWrite(v1_16_8,LOW);
+
+  digitalWrite(I1_3a,LOW);
+  digitalWrite(I1_4a,LOW);
+  digitalWrite(I1_6a,LOW);
+
  }
 
 

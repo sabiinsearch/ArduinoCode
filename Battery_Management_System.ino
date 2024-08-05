@@ -28,12 +28,13 @@ void loop() {
         if(!(manager.connected_bat)) {
           
             resetCharger();         
+           // stopCharging();
         }      
         else {
               
               if(manager.relative_soc<100) {
                
-               if(digitalRead(CHARGE_FULL_LED) == HIGH) {
+               if(digitalRead(CHARGE_FULL_LED) == LOW) {
                   digitalWrite(CHARGE_FULL_LED,HIGH);
                }
                 setCharger(&manager);  

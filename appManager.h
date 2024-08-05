@@ -19,7 +19,7 @@ TEMP_LEVEL_1,                 // 0 for 0-9
 TEMP_LEVEL_2,                 // 1 for 19-47 
 TEMP_LEVEL_3,                 // 2 for 48-54
 TEMP_LEVEL_4,                 // 3 for 45-47
-TEMP_LEVEL_5                  // Reset
+TEMP_LEVEL_5,                  // Reset
 };
 
 typedef struct {
@@ -57,7 +57,7 @@ void blink();
 char * getDeviceName(appManager*);
 char * getCellChemistry(appManager*);
 void getBatteryMode(appManager*);
-float getTemp(appManager*);
+float getTemp(appManager*,uint8_t);
 float getVolt(appManager*);
 void getManufactureDate(appManager*);
 unsigned int getAvgTimeToFull(appManager*);
@@ -78,6 +78,6 @@ void setLevel(appManager*);
 void setCharger(appManager*);
 void resetCharger();
 void setCharger_volt_current(appManager*);
-void stopCharging(appManager*);
+void stopCharging();
 
 #endif
