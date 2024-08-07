@@ -25,24 +25,24 @@ void loop() {
 
      scan(&manager);
 
-        if(!(manager.connected_bat)) {
+        if(!(manager.connected_bat)) {      // Bat not Connected
           
-            resetCharger();         
+            resetCharger();                     
            // stopCharging();
         }      
         else {
               
-              if(manager.relative_soc<100) {
+              if((manager.relative_soc<100) && (manager.relative_soc>0)) {    // Bat Connected but SoC below 100
                
-               if(digitalRead(CHARGE_FULL_LED) == LOW) {
+               if(digitalRead(CHARGE_FULL_LED) == LOW) {       // Check if Full_LED is already on
                   digitalWrite(CHARGE_FULL_LED,HIGH);
                }
                 setCharger(&manager);  
                // digitalWrite(CHARGING_LED_ON,LOW);     
-              }else {
+              }else {                                       // Bat Connected but SoC equal to or more than 100
                digitalWrite(CHARGE_FULL_LED,LOW);
-               resetCharger();
                digitalWrite(CHARGING_LED_ON,HIGH);
+               stopCharging();               
               }
                            
                  printBatInfo(&manager); 

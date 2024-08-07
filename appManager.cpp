@@ -198,16 +198,16 @@ void blink() {
 
 void setLevel(appManager* appMgr) {
 
-    if((DUMMY_LEVEL < 5) && (appMgr->temp<=9)) {
+    if((DUMMY_LEVEL == 5) && (appMgr->temp<=9)) {
        appMgr->temp_level =  TEMP_LEVEL_1;   
 
-    } else if((DUMMY_LEVEL < 5) && (appMgr->temp>9) && (appMgr->temp<=47)) {
+    } else if((DUMMY_LEVEL == 5) && (appMgr->temp>9) && (appMgr->temp<=47)) {
        appMgr->temp_level =  TEMP_LEVEL_2;
 
-    } else if((DUMMY_LEVEL < 5) && (appMgr->temp>47) && (appMgr->temp<=54)) { 
+    } else if((DUMMY_LEVEL == 5) && (appMgr->temp>47) && (appMgr->temp<=54)) { 
        appMgr->temp_level =  TEMP_LEVEL_3;
 
-    } else if((DUMMY_LEVEL < 5) && (appMgr->temp>55)) {                    
+    } else if((DUMMY_LEVEL == 5) && (appMgr->temp>55)) {                    
        appMgr->temp_level =  TEMP_LEVEL_4;
     }
      
@@ -215,7 +215,8 @@ void setLevel(appManager* appMgr) {
         Serial.print(F("Dummy Level set.."));
         appMgr->temp_level = DUMMY_LEVEL;
      }
-//Serial.println("Level set as per Temp...");    
+Serial.print("Level set ");    
+Serial.println(appMgr->temp_level);
 }
 
 void setCharger(appManager* appMgr) {
@@ -458,91 +459,83 @@ uint8_t getChargingCurrent(appManager* appMgr) {
 
 float getTemp(appManager* appMgr, uint8_t counter) {
 //    Serial.println("Getting Temp data...");
-    byte reply=5;
+    byte reply=0;
     byte byte_buffer[2];
-    uint32_t myInt=0;
-    // digitalWrite(scl_pin,LOW);
-    // digitalWrite(sda_pin,LOW);
-    
-    Wire.beginTransmission(BAT_ADDRESS);
+    uint16_t myInt=0;
+    uint8_t counter_local = counter;            
+    bool flag;
 
    // Wire.clearWireTimeoutFlag();
-   
-   bool flag = Wire.getWireTimeoutFlag();
-
     Wire.clearWireTimeoutFlag();
+    flag = Wire.getWireTimeoutFlag();
 
     if(!flag) {
-
-    int while_loop_counter = 0;   // counter to confirm battery not connected..
-
-    while(reply != 0) {
-
-      while_loop_counter++;  
-    
-      Wire.setWireTimeout(2500,true);
-      Wire.write(TEMPERATURE);
-      reply = Wire.endTransmission(true);    
-      Wire.clearWriteError(); 
-      delay(20);
-
-    };
-     
-
-     if((reply !=0) && (while_loop_counter>40)) {
-
-                appMgr->connected_bat = false;
-                digitalWrite(BATTERY_LED,HIGH);
-                digitalWrite(CHARGING_LED_ON,HIGH);
-                digitalWrite(CHARGE_FULL_LED,HIGH);
-                stopCharging();
-                // Serial.println(F("Battery not connected.."));
-                // Serial.println(F("*********"));
-                // Serial.println();
-
-    }    
       
-    if((reply == 0) && (counter=0)) {
-    
-     Serial.println(F("Bat connected.."));
-    
-    }else if((reply == 0) && (counter>0))  {
-      Serial.print(F("."));
+        //  Serial.print(F("Flag: "));
+        //  Serial.print(flag);
+         
+         int while_loop_counter = 0;   // counter to confirm battery not connected..
+
+        do {
+
+            if(while_loop_counter>0) {
+                // Serial.print(F("getTemp()>In while loop.."));
+                // Serial.println(while_loop_counter);
+            } 
+         while_loop_counter++;
+
+         Wire.beginTransmission(BAT_ADDRESS);
+         reply = Wire.endTransmission(true);  
+
+        }while((reply!=0) && (while_loop_counter<30));
+
+         while_loop_counter = 0;    // reset counter 
+
+        //  Serial.print(F("   Reply: "));
+        //  Serial.println(reply);
+
+         if(reply==0) {
+
+                      appMgr->connected_bat = true;
+                      digitalWrite(BATTERY_LED,LOW);  
+                      
+                      Wire.beginTransmission(BAT_ADDRESS);                      
+                      Wire.write(TEMPERATURE);
+                      reply = Wire.endTransmission(true);                      
+                      Wire.clearWriteError();
+
+                      if(reply == 0) {
+                        
+                            Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
+                            int k=0;
+                            
+                            while(0 < Wire.available()) {
+                            
+                              byte_buffer[k] = Wire.read();
+                              k++;
+                            }
+
+                            myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system
+                            
+                            // Serial.print(F("myInt:"));
+                            // Serial.print(myInt);
+                            // Serial.print(F("--> "));
+                            // Serial.print((float)(myInt/10-273));
+                      }
+
+         }
+         
     }
-    
-    appMgr->connected_bat = true;    // set boolean batteries connected  
-    digitalWrite(BATTERY_LED,LOW);                 
-                  // Get all connected battery data          
 
-    Wire.requestFrom(BAT_ADDRESS,sizeof(byte_buffer));
-
-     int k=0;
-     while(0 < Wire.available())
-     {
-      byte_buffer[k] = Wire.read();
-      k++;
-     }
-
-     myInt = byte_buffer[0] + (byte_buffer[1] << 8);   // Least endian system
-    } else {
-
-
-    }
-//     Serial.println("Collected Temp data...");
-     Wire.flush();
-     delay(10);  
-     Wire.end();
-//     digitalWrite(scl_pin,LOW);       
-//     Wire.setWireTimeout(2500,false); 
-     
-     return ((float)myInt/10)-273;
+     return ((float)(myInt/10)-273);
 }
 
 
 /************ Scan ********/
 void scan(appManager* appMgr) {
 
-               float temp_temp=-1;
+               float temp_temp;
+               uint16_t SoC_temp;
 
                blink();
 
@@ -551,23 +544,48 @@ void scan(appManager* appMgr) {
                appMgr->connected_bat = false;
 
                resetSavedValues(appMgr);
-                              
-                 temp_temp = getTemp(appMgr,0);  // Temparature                
+
+
+                 temp_temp = getTemp(appMgr,0);  // Temparature 
+
+                  // Serial.print(F("temp_temp = "));
+                  // Serial.println(temp_temp);
+                                
              
                  if(appMgr->connected_bat) {
-                        uint8_t while_counter = 0;
 
-                        while((temp_temp>150) || (temp_temp<0)) {   // store valid temp value
+                       uint8_t while_counter = 0;
+
+                       while((temp_temp>150) || (temp_temp<0)) {   // store valid temp value
+                          
+                         Serial.print(F("Scan->getTemp()=>In While.."));
+                          Serial.print(appMgr->connected_bat);
+                          // Serial.print(F("..T"));
+                          // Serial.println(temp_temp);
+
                           temp_temp = getTemp(appMgr,while_counter++);                           
                           delay(50); 
                         }
-                          appMgr->temp = temp_temp;
-                          temp_temp=0;
 
-                          appMgr->relative_soc = getRelativeSOC(appMgr);  // RELATIVE_SOC                
+                           appMgr->temp = temp_temp;
+//                           temp_temp=0;
+                                                 
+                          SoC_temp = getRelativeSOC(appMgr);  // RELATIVE_SOC             
+                          
+                          while(SoC_temp>100 || SoC_temp<0) {
+                            Serial.print(F("Scan->getRelativeSoC()=>In While.."));
+                            SoC_temp = getRelativeSOC(appMgr);
+                            delay(50);
+                          }
+                          appMgr->relative_soc = SoC_temp;
 
               } else {
-                   digitalWrite(BATTERY_LED,HIGH);
+                appMgr->connected_bat = false;
+                Serial.println(F("Scan=>Battery not conneted"));
+                digitalWrite(BATTERY_LED,HIGH);
+                digitalWrite(CHARGING_LED_ON,HIGH);
+                digitalWrite(CHARGE_FULL_LED,HIGH);
+                stopCharging();
               }            
 
                delay(1000);

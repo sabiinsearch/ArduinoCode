@@ -29,5 +29,5 @@
 
 #define TEMP_DEFAULT       500
 #define LEVEL_DEFAULT       10
-#define DUMMY_LEVEL         6    // set DUMMY_LEVEL = 6 or 7 of 8 for practice
+#define DUMMY_LEVEL         5    // set DUMMY_LEVEL = 6 or 7 of 8 for practice and set DUMMY_LEVEL = 5 for final
 #endif
