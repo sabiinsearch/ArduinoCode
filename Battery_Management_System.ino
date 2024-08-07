@@ -30,7 +30,7 @@ void loop() {
             resetCharger();                     
            // stopCharging();
         }      
-        else {
+        else {l
               
               if((manager.relative_soc<100) && (manager.relative_soc>0)) {    // Bat Connected but SoC below 100
                

@@ -53,7 +53,7 @@
 #define STATE_OF_HEALTH          0x54
 
 #define CHARGING_MAX            150
-#define CHARGING_MIN            100
+#define CHARGING_MIN            80
 
 
 
